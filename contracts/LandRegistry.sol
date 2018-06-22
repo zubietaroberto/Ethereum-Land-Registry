@@ -24,10 +24,12 @@ contract LandRegistry {
 
     TerrainDatabase terrainDatabase;
 
+    /* CONSTRUCTOR */
     constructor() public {
         terrainDatabase = TerrainDatabase({size: 0});
     }
 
+    /* CREATION FUNCTIONS */
     function createTerrain(string newOwner) 
     public {
         terrainDatabase.size++;
@@ -41,10 +43,9 @@ contract LandRegistry {
         terrainDatabase.list[currentId] = newTerrain;
     }
     
-    function addPointToTerrain(uint terrainId, string newLatitude, string newLongitude) 
+    function addPointToTerrain(uint terrainId, string newLatitude, string newLongitude)
+    terrainMustExist(terrainId)
     public {
-        if (terrainId > terrainDatabase.size) revert();
-
         Terrain storage queriedTerrain = terrainDatabase.list[terrainId];
         queriedTerrain.polygonLength++;
         uint currentId = queriedTerrain.polygonLength;
@@ -56,6 +57,55 @@ contract LandRegistry {
             id: currentId
         });
         queriedTerrain.polygon[currentId] = newPoint;
+    }
+
+    /* VIEWS */
+    function getTerrainCount()
+    public view returns(uint terrainId) {
+        return terrainDatabase.size;
+    }
+
+    function getTerrainData(uint terrainId) 
+    public view returns(
+        uint id,
+        string owner,
+        address registrar,
+        uint polygonLength
+    ){
+        Terrain storage queriedTerrain = terrainDatabase.list[terrainId];
+        return (
+            queriedTerrain.id,
+            queriedTerrain.owner,
+            queriedTerrain.registrar,
+            queriedTerrain.polygonLength
+        );
+    }
+
+    function getPolygonItemCount(uint terrainId) 
+    public view returns(uint polygonLength) {
+        if (terrainId > terrainDatabase.size) return 0;
+        return terrainDatabase.list[terrainId].polygonLength;
+    }
+
+    function getPolygonPoint(uint terrainId, uint polygonPointId)
+    public view returns(
+        string latitude,
+        string longitude,
+        address registrar
+    ){
+        Terrain storage queriedTerrain = terrainDatabase.list[terrainId];
+        Point storage queriedPoint = queriedTerrain.polygon[polygonPointId];
+        return (
+            queriedPoint.latitude,
+            queriedPoint.longitude,
+            queriedPoint.registrar
+        );
+    }
+
+    /* MODIFIERS */
+    modifier terrainMustExist(uint terrainId){
+        if (terrainId > terrainDatabase.size) revert();
+        _;
     }
 
 }
