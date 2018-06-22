@@ -22,15 +22,35 @@ describe('LandRegistry', () => {
     })
 
     it('Creates the Terrain and Polygon', async () => {
+        // Create a sample terrain
         const ownerName = 'Decent Technologies Inc.'
         const result = await contract.methods
             .createTerrain(ownerName)
             .send({ from: accounts[0], gas: '1000000' })
-        const { terrainId, owner, registrar } = result.events.NewTerrain.returnValues
+        const {
+            terrainId,
+            owner,
+            registrar
+        } = result.events.NewTerrain.returnValues
 
         // Assertions
-        assert.equal(terrainId, "1")
+        assert.equal(terrainId, '1')
         assert.equal(owner, ownerName)
         assert.equal(registrar, accounts[0])
+
+        const coordinateArray = [['13', '14'], ['15', '16'], ['17', '18']]
+        for (const coord of coordinateArray) {
+            const result2 = await contract.methods
+                .addPointToTerrain(terrainId, coord[0], coord[1])
+                .send({ from: accounts[1], gas: '1000000' })
+            const values = result2.events.NewPolygonPoint.returnValues
+            assert.equal(values.registrar, accounts[1])
+            assert.equal(values.terrainId, terrainId)
+        }
+
+        const count = await contract.methods
+            .getPolygonItemCount(terrainId)
+            .call({from: accounts[0] })
+        assert.equal(count, 3)
     })
 })
