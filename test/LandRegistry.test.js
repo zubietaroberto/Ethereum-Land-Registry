@@ -38,19 +38,24 @@ describe('LandRegistry', () => {
         assert.equal(owner, ownerName)
         assert.equal(registrar, accounts[0])
 
+        // Create a Polygon with dummy coordinates
         const coordinateArray = [['13', '14'], ['15', '16'], ['17', '18']]
         for (const coord of coordinateArray) {
             const result2 = await contract.methods
                 .addPointToTerrain(terrainId, coord[0], coord[1])
                 .send({ from: accounts[1], gas: '1000000' })
             const values = result2.events.NewPolygonPoint.returnValues
+
+            // Assert that the points were created
             assert.equal(values.registrar, accounts[1])
             assert.equal(values.terrainId, terrainId)
         }
 
+        // Query the contract for the amount of points in that polygon,
+        // and make sure it is correct.
         const count = await contract.methods
             .getPolygonItemCount(terrainId)
             .call({from: accounts[0] })
-        assert.equal(count, 3)
+        assert.equal(count, coordinateArray.length)
     })
 })
