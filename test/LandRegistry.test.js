@@ -17,7 +17,20 @@ beforeEach(async () => {
 })
 
 describe('LandRegistry', () => {
-    it('deploys the contract', async () => {
+    it('Deploys the contract', async () => {
         assert.ok(contract.options.address)
+    })
+
+    it('Creates the Terrain and Polygon', async () => {
+        const ownerName = 'Decent Technologies Inc.'
+        const result = await contract.methods
+            .createTerrain(ownerName)
+            .send({ from: accounts[0], gas: '1000000' })
+        const { terrainId, owner, registrar } = result.events.NewTerrain.returnValues
+
+        // Assertions
+        assert.equal(terrainId, "1")
+        assert.equal(owner, ownerName)
+        assert.equal(registrar, accounts[0])
     })
 })
