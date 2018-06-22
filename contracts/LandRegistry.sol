@@ -24,6 +24,10 @@ contract LandRegistry {
 
     TerrainDatabase terrainDatabase;
 
+    /* EVENTS */
+    event NewTerrain(uint terrainId, string owner, address registrar);
+    event NewPolygonPoint(uint terrainId, uint pointId, address registrar);
+
     /* CONSTRUCTOR */
     constructor() public {
         terrainDatabase = TerrainDatabase({size: 0});
@@ -41,6 +45,7 @@ contract LandRegistry {
             polygonLength: 0
         });
         terrainDatabase.list[currentId] = newTerrain;
+        emit NewTerrain(newTerrain.id, newTerrain.owner, newTerrain.registrar);
     }
     
     function addPointToTerrain(uint terrainId, string newLatitude, string newLongitude)
@@ -57,6 +62,7 @@ contract LandRegistry {
             id: currentId
         });
         queriedTerrain.polygon[currentId] = newPoint;
+        emit NewPolygonPoint(terrainId, newPoint.id, newPoint.registrar);
     }
 
     /* VIEWS */
