@@ -20,6 +20,11 @@ async function execute() {
     const source = await readFile(contractPath, 'utf8')
     const output = solc.compile(source, 1)
 
+    if(output.errors){
+        output.errors.map((e) => { console.log(e); });
+        return
+    }
+
     const str = JSON.stringify(output.contracts[':LandRegistry'])
     await writeFile(outputPath, str, 'utf8')
 }
