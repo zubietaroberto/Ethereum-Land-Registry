@@ -8,7 +8,8 @@ const web3 = new Web3(provider)
 
 let accounts
 let contract
-beforeEach(async () => {
+beforeEach(async function() {
+    this.timeout(10000)
     accounts = await web3.eth.getAccounts()
     contract = await new web3.eth.Contract(JSON.parse(interface))
         .deploy({ data: bytecode })
@@ -55,7 +56,7 @@ describe('LandRegistry', () => {
         // and make sure it is correct.
         const count = await contract.methods
             .getPolygonItemCount(terrainId)
-            .call({from: accounts[0] })
+            .call({ from: accounts[0] })
         assert.equal(count, coordinateArray.length)
     })
 })

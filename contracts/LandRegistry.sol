@@ -35,32 +35,27 @@ contract LandRegistry {
     }
 
     /* CREATION FUNCTIONS */
-    function createTerrain(string newOwner) 
+    function createTerrain(string newOwner)
     public {
         terrainDatabase.size++;
         uint currentId = terrainDatabase.size;
         Terrain memory newTerrain = Terrain({
-            id: currentId,
-            registrar: msg.sender,
-            owner: newOwner,
-            polygonLength: 0
+            id: currentId, registrar: msg.sender, owner: newOwner, polygonLength: 0
         });
         terrainDatabase.list[currentId] = newTerrain;
         emit NewTerrain(newTerrain.id, newTerrain.owner, newTerrain.registrar);
     }
-    
+
     function addPointToTerrain(uint terrainId, string newLatitude, string newLongitude)
+    public
     terrainMustExist(terrainId)
-    public {
+    {
         Terrain storage queriedTerrain = terrainDatabase.list[terrainId];
         queriedTerrain.polygonLength++;
         uint currentId = queriedTerrain.polygonLength;
 
         Point memory newPoint = Point({
-            latitude: newLatitude,
-            longitude: newLongitude,
-            registrar: msg.sender,
-            id: currentId
+            latitude: newLatitude, longitude: newLongitude, registrar: msg.sender, id: currentId
         });
         queriedTerrain.polygon[currentId] = newPoint;
         emit NewPolygonPoint(terrainId, newPoint.id, newPoint.registrar);
@@ -72,7 +67,7 @@ contract LandRegistry {
         return terrainDatabase.size;
     }
 
-    function getTerrainData(uint terrainId) 
+    function getTerrainData(uint terrainId)
     public view returns(
         uint id,
         string owner,
@@ -88,7 +83,7 @@ contract LandRegistry {
         );
     }
 
-    function getPolygonItemCount(uint terrainId) 
+    function getPolygonItemCount(uint terrainId)
     public view returns(uint polygonLength) {
         if (terrainId > terrainDatabase.size) return 0;
         return terrainDatabase.list[terrainId].polygonLength;
@@ -110,8 +105,10 @@ contract LandRegistry {
     }
 
     /* MODIFIERS */
-    modifier terrainMustExist(uint terrainId){
-        if (terrainId > terrainDatabase.size) revert();
+    modifier terrainMustExist(uint terrainId) {
+        if (terrainId > terrainDatabase.size) {
+            revert("Terrain must exist");
+        }
         _;
     }
 
